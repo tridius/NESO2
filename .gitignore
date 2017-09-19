@@ -3,3 +3,4 @@
 /target/
 .vscode/tasks.json
 /test/test_roms/
+/*.dll

@@ -2,7 +2,9 @@
 name = "neso3"
 version = "0.1.0"
 authors = ["Nick Coish <nick.coish@gmail.com>"]
+build = "build.rs"
 
 [dependencies]
-portaudio = "0.7.0"
 clap = "2.26"
+portaudio = "0.7.0"
+sdl2 = "0.30.0"
