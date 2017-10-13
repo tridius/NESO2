@@ -3,8 +3,8 @@
 use std::error;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use ppu;
-use memory::{GameMemory};
+use memory::{GameMemory, Mirroring};
+use mapper::Mapper;
 
 const PRG_PAGE_SIZE: usize = 16_384;
 const CHR_PAGE_SIZE: usize = 8_192;
@@ -21,10 +21,10 @@ pub struct Header {
     raw_header: [u8; 16],
     prg_rom_banks: u8,
     chr_rom_banks: u8,
-    mirroring: ppu::Mirror,
+    mirroring: Mirroring,
     battery_ram: bool,
     trainer: bool,
-    mapper_num: u8,
+    mapper: Mapper,
     ram_banks: u8,
     tv_system: TVSystem,
 }
@@ -48,15 +48,15 @@ fn parse_header(game_contents: &mut BufReader<File>) -> Result<Header, Box<error
             prg_rom_banks: buf[4],
             chr_rom_banks: buf[5],
             mirroring: if (rc1 & four_mirror_bit) == four_mirror_bit {
-                ppu::Mirror::FourScreen
+                Mirroring::FourScreen
             } else if (rc1 & vert_mirror_bit) == vert_mirror_bit {
-                ppu::Mirror::Vertical
+                Mirroring::Vertical
             } else {
-                ppu::Mirror::Horizontal
+                Mirroring::Horizontal
             },
             battery_ram: (rc1 & battery_ram_bit) == battery_ram_bit,
             trainer: (rc1 & trainer_bit) == trainer_bit,
-            mapper_num: (rc2 & 0b1111_0000) | (rc1 >> 4),
+            mapper: Mapper::from_number((rc2 & 0b1111_0000) | (rc1 >> 4))?,
             ram_banks: buf[8],
             tv_system: match buf[9] & 0b0000_0001 {
                 0 => TVSystem::NTSC,
